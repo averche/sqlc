@@ -424,6 +424,22 @@ func isTableRequired(n ast.Node, col *Column, prior int) int {
 		if aliasMatch && tableMatch {
 			return prior
 		}
+
+	case *ast.RangeSubselect:
+		if n.Alias != nil && col.TableAlias != "" && *n.Alias.Aliasname == col.TableAlias {
+			if subquery, ok := n.Subquery.(*ast.SelectStmt); ok {
+				for _, f := range subquery.FromClause.Items {
+					// Here, we ignore col.TableAlias since we're now inside the subquery and
+					// need to match only by the table name.
+					subCol := *col
+					subCol.TableAlias = ""
+					if res := isTableRequired(f, &subCol, tableRequired); res != tableNotFound {
+						return prior
+					}
+				}
+			}
+		}
+
 	case *ast.JoinExpr:
 		helper := func(l, r int) int {
 			if res := isTableRequired(n.Larg, col, l); res != tableNotFound {
@@ -444,6 +460,7 @@ func isTableRequired(n ast.Node, col *Column, prior int) int {
 		case ast.JoinTypeInner:
 			return helper(tableRequired, tableRequired)
 		}
+
 	case *ast.List:
 		for _, item := range n.Items {
 			if res := isTableRequired(item, col, prior); res != tableNotFound {
@@ -660,7 +677,6 @@ func outputColumnRefs(res *ast.ResTarget, tables []*Table, node *ast.ColumnRef) 
 			continue
 		}
 		for _, c := range t.Columns {
-
 			if c.Name == name {
 				found += 1
 				cname := c.Name
