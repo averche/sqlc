@@ -7,7 +7,7 @@ package querytest
 import (
 	"database/sql"
 
-	"github.com/sqlc-dev/sqlc-testdata/mysql"
+	"github.com/averche/sqlc-testdata/mysql"
 )
 
 type Foo struct {

@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/sqlc-dev/sqlc/internal/codegen/golang/opts"
-	"github.com/sqlc-dev/sqlc/internal/metadata"
+	"github.com/averche/sqlc/internal/codegen/golang/opts"
+	"github.com/averche/sqlc/internal/metadata"
 )
 
 type fileImports struct {
@@ -198,7 +198,7 @@ func buildImports(options *opts.Options, queries []Query, uses func(string) bool
 
 	for typeName := range pqtypeTypes {
 		if uses(typeName) {
-			pkg[ImportSpec{Path: "github.com/sqlc-dev/pqtype"}] = struct{}{}
+			pkg[ImportSpec{Path: "github.com/averche/pqtype"}] = struct{}{}
 			break
 		}
 	}
